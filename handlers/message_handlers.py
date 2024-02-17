@@ -4,7 +4,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram import F
 
 from config_data.config import alphabetic_currency_codes
-from parsers.exchange_rates import start_parse
+from api.exchange_rates import convert_currency
 
 
 router = Router(name=__name__)
@@ -25,11 +25,10 @@ async def process_user_input_rates(message: types.Message):
                     and convert_form in alphabetic_currency_codes
                     and convert_to in alphabetic_currency_codes):
 
-                url = (f"https://www.banki.ru/products/currency"
-                       f"/{convert_number}{convert_form.lower()}"
-                       f"_{convert_to.lower()}/")
-
-                result = await start_parse(url=url)
+                result = await convert_currency(
+                    convert_form,
+                    convert_to,
+                    int(convert_number))
 
                 await message.answer(result)
 
@@ -46,14 +45,18 @@ async def process_user_input_rates(message: types.Message):
 
 @router.message(CommandStart())
 async def process_start(message: types.Message):
+
     """Функции обработки команды start"""
+
     await message.answer('Привет! Я бот для конвертаций валют. '
                          'Введите /help для помощи по командам')
 
 
 @router.message(Command("help"))
 async def process_help(message: types.Message):
+
     """Функции обработки команды help"""
+
     await message.answer('Введите команду /convert с указанием суммы и валютами '
                          'конвертации, например /convert 100 USD EUR,'
                          ' что эквивалентно "конвертировать 100 долларов в евро"')
@@ -61,6 +64,7 @@ async def process_help(message: types.Message):
 
 @router.message()
 async def process_message(message: types.Message):
+
     """Функция обработки входящих сообщений"""
 
     greetings = ["Здравствуйте", "Привет",
@@ -82,6 +86,7 @@ async def process_message(message: types.Message):
             await message.answer("До встречи!")
             user_answer = True
             break
+
     if not user_answer:
         await message.answer("Введите /start для начала работы")
 

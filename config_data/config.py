@@ -185,4 +185,5 @@ alphabetic_currency_codes = [
     "XPD",
     "XPT",
     "XTS",
+    "BYN"
 ]
