@@ -4,7 +4,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram import F
 
 from config_data.config import alphabetic_currency_codes
-from api.exchange_rates import convert_currency
+from api.exchange_rates import ConvertCurrency, CurrencyAPI
 
 
 router = Router(name=__name__)
@@ -25,7 +25,10 @@ async def process_user_input_rates(message: types.Message):
                     and convert_form in alphabetic_currency_codes
                     and convert_to in alphabetic_currency_codes):
 
-                result = await convert_currency(
+                api = CurrencyAPI("https://www.cbr-xml-daily.ru/daily_json.js")
+                converter = ConvertCurrency(api)
+
+                result = await converter.convert_currency(
                     convert_form,
                     convert_to,
                     int(convert_number))
@@ -67,28 +70,18 @@ async def process_message(message: types.Message):
 
     """Функция обработки входящих сообщений"""
 
-    greetings = ["Здравствуйте", "Привет",
-                 "Доброе утро", "Добрый день", "Добрый вечер"]
+    messages = {
+        "greetings": ["здравствуйте", "привет",
+                      "доброе утро", "добрый день", "добрый вечер"],
 
-    user_answer = False
+        "goodbyes": ["пока", "до свидания",  "прощай",
+                     "всего хорошего", "счастливо", "до завтра", "до встречи"]
 
-    for greetin in greetings:
-        if greetin.lower() in message.text.lower():
-            await message.answer("Привет! Как дела?")
-            user_answer = True
-            break
+    }
 
-    goodbyes = ["Пока", "до свидания",  "прощай",
-                "всего хорошего", "счастливо", "до завтра", "До встречи"]
-
-    for goodbye in goodbyes:
-        if goodbye.lower() in message.text.lower():
-            await message.answer("До встречи!")
-            user_answer = True
-            break
-
-    if not user_answer:
+    if message.text.lower() in messages["greetings"]:
+        await message.answer("Привет! Как дела?")
+    elif message.text.lower() in messages["goodbyes"]:
+        await message.answer("До встречи!")
+    else:
         await message.answer("Введите /start для начала работы")
-
-
-
