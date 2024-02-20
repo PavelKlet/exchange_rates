@@ -8,7 +8,7 @@ else:
 
 
 TOKEN = os.getenv("TOKEN")
-
+AI_KEY = os.getenv("AI_KEY")
 
 alphabetic_currency_codes = [
     "AUD",

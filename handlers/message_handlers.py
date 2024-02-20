@@ -2,8 +2,9 @@ from aiogram import types
 from aiogram import Router
 from aiogram.filters import CommandStart, Command
 from aiogram import F
+from openai import OpenAI
 
-from config_data.config import alphabetic_currency_codes
+from config_data.config import alphabetic_currency_codes, AI_KEY
 from api.exchange_rates import ConvertCurrency, CurrencyAPI
 
 
@@ -70,18 +71,23 @@ async def process_message(message: types.Message):
 
     """Функция обработки входящих сообщений"""
 
-    messages = {
-        "greetings": ["здравствуйте", "привет",
-                      "доброе утро", "добрый день", "добрый вечер"],
+    client = OpenAI(api_key=AI_KEY,
+                    base_url="https://api.deepseek.com/v1"
+                    )
 
-        "goodbyes": ["пока", "до свидания",  "прощай",
-                     "всего хорошего", "счастливо", "до завтра", "до встречи"]
+    response = client.chat.completions.create(
+        model="deepseek-chat",
+        messages=[
+            {"role": "system", "content": "you are a message handler in the "
+                                          "telegram currency conversion bot"
+                                          " and speak Russian. if something "
+                                          "is unclear, you ask the person to "
+                                          "enter the /start command. If a "
+                                          "person says goodbye, you say "
+                                          "goodbye in return. If he greets "
+                                          "you, you greet in return"},
+            {"role": "user", "content": message.text},
+        ]
+    )
 
-    }
-
-    if message.text.lower() in messages["greetings"]:
-        await message.answer("Привет! Как дела?")
-    elif message.text.lower() in messages["goodbyes"]:
-        await message.answer("До встречи!")
-    else:
-        await message.answer("Введите /start для начала работы")
+    await message.answer(response.choices[0].message.content)
