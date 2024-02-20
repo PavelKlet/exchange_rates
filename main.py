@@ -18,10 +18,10 @@ async def start():
 
 
 if __name__ == '__main__':
-    # handler = RotatingFileHandler("app.log", maxBytes=100000, backupCount=3)
-    # logging.basicConfig(handlers=[handler], level=logging.INFO,
-    #                     format="%(asctime)s - %(name)s -"
-    #                            " %(levelname)s - %(message)s")
+    handler = RotatingFileHandler("app.log", maxBytes=100000, backupCount=3)
+    logging.basicConfig(handlers=[handler], level=logging.INFO,
+                        format="%(asctime)s - %(name)s -"
+                               " %(levelname)s - %(message)s")
     loop = asyncio.get_event_loop()
     loop.create_task(start())
     loop.run_forever()
